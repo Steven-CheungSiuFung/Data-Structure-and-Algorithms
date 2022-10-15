@@ -1,23 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import FindNemo from "./components/FindNemo/FindNemo.component";
+import Array from "./components/Array/Array.component";
+import HashTable from "./components/HashTable/HashTable.component";
+import LinkedList from "./components/LinkedList/LinkedList.component";
+import Stack from "./components/Stack/Stack.component";
+import Queue from "./components/Queue/Queue.component";
+import BinarySearchTree from "./components/Trees/BinarySearchTree/BinarySearchTree.component";
+import Graph from "./components/Graph/Graph.component";
+import DynamicProgramming from "./components/DynamicProgramming/DynamicProgramming.component";
+
+import "./App.css";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Data Structures and Algorithms</h1>
+      <p>--------------------------------------------</p>
+      <FindNemo />
+      <p>--------------------------------------------</p>
+      <Array />
+      <p>--------------------------------------------</p>
+      <HashTable />
+      <p>--------------------------------------------</p>
+      <LinkedList />
+      <p>--------------------------------------------</p>
+      <Stack />
+      <p>--------------------------------------------</p>
+      <Queue />
+      <p>--------------------------------------------</p>
+      <BinarySearchTree />
+      <p>--------------------------------------------</p>
+      <Graph />
+      <p>--------------------------------------------</p>
+      <DynamicProgramming />
+      <p>--------------------------------------------</p>
     </div>
   );
 }
