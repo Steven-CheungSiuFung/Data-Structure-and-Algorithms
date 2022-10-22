@@ -146,6 +146,7 @@ const LinkList = () => {
   myLinkList.remove(1);
   myLinkList.reverse();
 
+  /* Reverse a link list */
   const reverse = (head) => {
     let current = head;
     let prev = null;
@@ -158,6 +159,162 @@ const LinkList = () => {
     }
 
     return prev;
+    // T: O(n)
+    // S: O(1)
+  };
+
+  /* M, N Reversals */
+  const MNReversals = (head, m, n) => {
+    // keep check of the position
+    // current node
+    // start
+    // tail
+    // reversed list
+    let position = 1;
+    let currentNode = head;
+    let start = null;
+
+    while (position < m) {
+      start = currentNode;
+      currentNode = currentNode.next;
+      position++;
+    }
+
+    let tail = currentNode;
+    let reversedList = null;
+
+    while (position < n + 1) {
+      let next = currentNode.next;
+      currentNode.next = reversedList;
+      reversedList = currentNode;
+      currentNode = next;
+      position++;
+    }
+
+    tail.next = currentNode;
+    if (m > 1) {
+      start.next = reversedList;
+      return head;
+    } else {
+      return reversedList;
+    }
+  };
+
+  /* Flatten a Multilevel Doubly Linked List */
+  // bottom up solution
+  const flattenLinkedList = (head) => {
+    let currentNode = head;
+    let track = [];
+
+    if (!currentNode) {
+      return head;
+    }
+
+    while (currentNode.next || currentNode.child || track.length > 0) {
+      if (currentNode.child) {
+        const newTrack = {
+          start: currentNode,
+          next: currentNode.next,
+          child: currentNode.child,
+        };
+        track.push(newTrack);
+        currentNode = currentNode.child;
+      } else if (currentNode.next === null) {
+        const index = track.length - 1;
+        const tracked = track[index];
+        tracked.start.next = tracked.child;
+        tracked.child.prev = tracked.start;
+        tracked.start.child = null;
+        currentNode.next = tracked.next;
+        if (tracked.next) {
+          tracked.next.prev = currentNode;
+          currentNode = currentNode.next;
+        }
+        track.pop();
+      } else {
+        currentNode = currentNode.next;
+      }
+    }
+    return head;
+  };
+
+  // top down solution
+  const flattenLinkedListTD = (head) => {
+    let currentNode = head;
+
+    if (!currentNode) {
+      return head;
+    }
+
+    while (currentNode.next || currentNode.child) {
+      if (currentNode.child) {
+        let childNode = currentNode.child;
+        while (childNode.next !== null) {
+          childNode = childNode.next;
+        }
+        childNode.next = currentNode.next;
+        if (childNode.next) {
+          childNode.next.prev = childNode;
+        }
+        currentNode.next = currentNode.child;
+        currentNode.child.prev = currentNode;
+        currentNode.child = null;
+      }
+      currentNode = currentNode.next;
+    }
+    return head;
+    // T: O(n)
+    // S: O(1)
+  };
+
+  /* Cycle Detection */
+  // basic solution
+  const cycle = (head) => {
+    if (!head) return null;
+    let currentNode = head;
+    let seenNodes = new Set();
+    while (!seenNodes.has(currentNode)) {
+      if (currentNode.next === null) {
+        return null;
+      }
+      seenNodes.add(currentNode);
+      currentNode = currentNode.next;
+    }
+    return currentNode;
+    // T: O(n)
+    // S: O(n)
+  };
+
+  // Floyd's tortoise and hare
+  const floyd = (head) => {
+    if (!head) return null;
+    let tortoise = head;
+    let hare = head;
+    let meet = null;
+
+    while (!meet) {
+      tortoise = tortoise.next;
+      hare = hare.next;
+      if (hare === null || hare.next === null || hare.next.next === null) {
+        return null;
+      } else {
+        hare = hare.next;
+      }
+
+      if (tortoise === hare) {
+        meet = tortoise;
+      }
+    }
+
+    tortoise = head;
+    hare = meet;
+
+    while (tortoise !== hare) {
+      tortoise = tortoise.next;
+      hare = hare.next;
+    }
+
+    return tortoise;
     // T: O(n)
     // S: O(1)
   };
