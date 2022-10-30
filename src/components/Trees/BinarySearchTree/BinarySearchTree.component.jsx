@@ -219,6 +219,201 @@ const BinarySearchTree = () => {
   const preOrderDFS = depthFirstSearchPreOrder(myTree.root, []);
   const postOrderDFS = depthFirstSearchPostOrder(myTree.root, []);
 
+  /* Maximum Depth of Binary Tree */
+  const recursionSearch = (currentNode, count) => {
+    if (currentNode.left === null && currentNode.right === null) {
+      return count;
+    }
+
+    let leftCount = count;
+    if (currentNode.left) {
+      leftCount = recursionSearch(currentNode.left, leftCount + 1);
+    }
+    let rightCount = count;
+    if (currentNode.right) {
+      rightCount = recursionSearch(currentNode.right, rightCount + 1);
+    }
+    return Math.max(leftCount, rightCount);
+  };
+
+  const maxDepth = (root) => {
+    if (!root) return 0;
+    let count = 1;
+    return recursionSearch(root, count);
+    // T: O(n);
+    // S: O(n);
+  };
+
+  /* Binary Tree Level Order Traversal */
+  const treeLevel = (root) => {
+    if (!root) return [];
+    const res = [];
+    const q = [root];
+    while (q.length) {
+      let nodeNum = q.length;
+      let currentNum = 0;
+      const subValues = [];
+
+      while (currentNum < nodeNum) {
+        const newNode = q.shift();
+        subValues.push(newNode.value);
+        if (newNode.left) {
+          q.push(newNode.left);
+        }
+        if (newNode.right) {
+          q.push(newNode.right);
+        }
+        currentNum++;
+      }
+      res.push(subValues);
+    }
+    return res;
+    // T: O(n);
+    // S: O(n);
+  };
+
+  /* Binary Tree Right Side View */
+  // BFS
+  const BFSRightSideView = (root) => {
+    if (!root) return [];
+    const res = [];
+    const q = [root];
+    while (q.length) {
+      let nodeNum = q.length;
+      let current = 0;
+      while (current < nodeNum) {
+        const newNode = q.shift();
+        if (newNode.left) {
+          q.push(newNode.left);
+        }
+        if (newNode.right) {
+          q.push(newNode.right);
+        }
+        current++;
+        if (current === nodeNum) {
+          res.push(newNode.val);
+        }
+      }
+      nodeNum = q.length;
+    }
+    return res;
+    // T: O(n);
+    // S: O(w)
+  };
+
+  // DFS
+  const recursionRightSideView = (node, level, res) => {
+    if (level >= res.length) {
+      res.push(node.val);
+    }
+
+    if (node.left === null && node.right === null) {
+      return;
+    } else {
+      if (node.right) {
+        recursionRightSideView(node.right, level + 1, res);
+      }
+      if (node.left) {
+        recursionRightSideView(node.left, level + 1, res);
+      }
+    }
+    return;
+  };
+
+  const DFSRightSideView = (root) => {
+    if (!root) return [];
+    const res = [];
+    recursionRightSideView(root, 0, res);
+    return res;
+    // T: O(n);
+    // S: O(h);
+  };
+
+  /* Count Complete Tree Nodes */
+  // get the height of the tree
+  const getHeight = (currentNode, level) => {
+    if (currentNode.left === null) {
+      return level;
+    }
+    level++;
+    return getHeight(currentNode.left, level);
+  };
+
+  // check if a node exists
+  const checkNode = (currentNode, nodeIndex, left, right) => {
+    if (left === right) {
+      if (currentNode) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    const mid = Math.ceil((right + left) / 2);
+    if (nodeIndex < mid) {
+      return checkNode(currentNode.left, nodeIndex, left, mid - 1);
+    }
+    if (nodeIndex >= mid) {
+      return checkNode(currentNode.right, nodeIndex, mid, right);
+    }
+  };
+
+  // count bottom level nodes
+  const countBottom = (root, last, left, right, maxNum) => {
+    if (left === right) {
+      return last;
+    }
+    let nodeIndex = Math.ceil((right + left) / 2);
+    const isExist = checkNode(root, nodeIndex, 0, maxNum);
+    if (isExist) {
+      last = nodeIndex;
+      return countBottom(root, last, nodeIndex, right, maxNum);
+    } else {
+      return countBottom(root, last, left, nodeIndex - 1, maxNum);
+    }
+  };
+
+  const countNodes = (root) => {
+    if (!root) return 0;
+    // count the upper part
+    const h = getHeight(root, 1);
+    const upperNodes = 2 ** (h - 1) - 1;
+
+    // count the bottom level
+    let left = 0;
+    let right = upperNodes;
+    let last = 0;
+    last = countBottom(root, last, left, right, upperNodes);
+
+    return upperNodes + last + 1;
+    // T: O(logn * logn)
+    // S: O(1)
+  };
+
+  /* Validate Binary Search Tree */
+  const recursionBST = (currentNode, lesser, greater) => {
+    if (currentNode.val <= lesser || currentNode.val >= greater) {
+      return false;
+    }
+    if (currentNode.left) {
+      if (!recursionBST(currentNode.left, lesser, currentNode.val)) {
+        return false;
+      }
+    }
+    if (currentNode.right) {
+      if (!recursionBST(currentNode.right, currentNode.val, greater)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const isValidBST = (root) => {
+    if (!root) return true;
+    return recursionBST(root, -Infinity, Infinity);
+    // T: O(n);
+    // S: O(n);
+  };
+
   return (
     <div>
       <h3>BinarySearchTree</h3>

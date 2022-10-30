@@ -430,6 +430,44 @@ const Array = () => {
     return true;
   };
 
+  /* Find First and Last Position of Element in Sorted Array */
+
+  const binarySearch = (nums, target, left, right) => {
+    while (left <= right) {
+      let mid = Math.floor((right + left) / 2);
+      if (nums[mid] === target) {
+        return mid;
+      } else if (nums[mid] > target) {
+        right = mid - 1;
+      } else {
+        left = mid + 1;
+      }
+    }
+    return -1;
+  };
+
+  const findStartAndEndIndex = (nums, target) => {
+    let left = 0;
+    let right = nums.length - 1;
+    const firstPosition = binarySearch(nums, target, left, right);
+    if (firstPosition === -1) return [-1, -1];
+    let temp1 = firstPosition;
+    let start = firstPosition;
+    while (start !== -1) {
+      temp1 = start;
+      start--;
+      start = binarySearch(nums, target, 0, start);
+    }
+    let temp2 = firstPosition;
+    let end = firstPosition;
+    while (end !== -1) {
+      temp2 = end;
+      end++;
+      end = binarySearch(nums, target, end, right);
+    }
+    return [temp1, temp2];
+  };
+
   return (
     <div>
       <h3>Array</h3>
