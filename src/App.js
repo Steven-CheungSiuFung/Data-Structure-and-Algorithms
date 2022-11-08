@@ -7,6 +7,7 @@ import Queue from "./components/Queue/Queue.component";
 import BinarySearchTree from "./components/Trees/BinarySearchTree/BinarySearchTree.component";
 import Graph from "./components/Graph/Graph.component";
 import DynamicProgramming from "./components/DynamicProgramming/DynamicProgramming.component";
+import TwoDArray from "./components/2d-array/2d-array.component";
 
 import "./App.css";
 
@@ -28,6 +29,8 @@ function App() {
       <Queue />
       <p>--------------------------------------------</p>
       <BinarySearchTree />
+      <p>--------------------------------------------</p>
+      <TwoDArray />
       <p>--------------------------------------------</p>
       <Graph />
       <p>--------------------------------------------</p>
