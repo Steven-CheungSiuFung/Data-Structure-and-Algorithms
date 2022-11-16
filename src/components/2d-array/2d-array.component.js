@@ -75,6 +75,116 @@ const TwoDArray = () => {
     // S: O(n);
   };
 
+  /* Number of Islands */
+  const grid = [
+    ["1", "1", "1", "1", "0"],
+    ["1", "1", "0", "1", "0"],
+    ["1", "1", "0", "0", "1"],
+    ["1", "0", "0", "1", "1"],
+    ["0", "0", "1", "1", "1"],
+  ];
+  const islandDFS = (grid, row, col) => {
+    if (
+      row < 0 ||
+      row >= grid.length ||
+      col < 0 ||
+      col >= grid[0].length ||
+      grid[row][col] === "0"
+    )
+      return;
+    const direction = [
+      [-1, 0],
+      [0, 1],
+      [1, 0],
+      [0, -1],
+    ];
+    if (grid[row][col] === "1") {
+      grid[row][col] = "0";
+    }
+    for (let i = 0; i < direction.length; i++) {
+      const currentDir = direction[i];
+      islandDFS(grid, row + currentDir[0], col + currentDir[1]);
+    }
+  };
+
+  const numIslands = (grid) => {
+    let count = 0;
+    // sequential traverse
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[0].length; j++) {
+        if (grid[i][j] === "1") {
+          // count++
+          count++;
+          islandDFS(grid, i, j);
+          // DFS turn island to "0"
+        }
+      }
+    }
+    return count;
+    // T: O(m*n);
+    // S: O(m*n);
+  };
+
+  /* Rotting Oranges */
+  const orangesRotting = (grid) => {
+    // get all initial rotten oranges
+    // get all fresh oranges
+    // BFS
+    // keep track of time by counting level
+    const direction = [
+      [-1, 0],
+      [0, 1],
+      [1, 0],
+      [0, -1],
+    ];
+    let time = 0;
+    const q = [];
+    let fresh = 0;
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[0].length; j++) {
+        if (grid[i][j] === 2) {
+          const newRotten = [i, j];
+          q.push(newRotten);
+        } else if (grid[i][j] === 1) {
+          fresh++;
+        }
+      }
+    }
+    if (fresh === 0) return 0;
+    let count = q.length;
+    let currentNum = 0;
+    while (q.length) {
+      const currentRotten = q.shift();
+      currentNum++;
+      for (let i = 0; i < direction.length; i++) {
+        const currentDir = direction[i];
+        const row = currentRotten[0] + currentDir[0];
+        const col = currentRotten[1] + currentDir[1];
+        if (
+          row < 0 ||
+          row >= grid.length ||
+          col < 0 ||
+          col >= grid[0].length ||
+          grid[row][col] === 0 ||
+          grid[row][col] === 2
+        )
+          continue;
+        if (grid[row][col] === 1) {
+          grid[row][col] = 2;
+          q.push([row, col]);
+          fresh--;
+        }
+      }
+      if (currentNum === count) {
+        time++;
+        currentNum = 0;
+        count = q.length;
+      }
+    }
+    if (fresh > 0) return -1;
+    return time - 1;
+  };
+
   return (
     <div>
       <h3>2D Array</h3>
