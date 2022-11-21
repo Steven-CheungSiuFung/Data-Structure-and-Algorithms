@@ -1,4 +1,5 @@
 import React from "react";
+import TwoDArrayRow from "../../TwoDArrayRow/TwoDArrayRow.component";
 
 const TwoDArray = () => {
   const TwoD = [
@@ -8,7 +9,7 @@ const TwoDArray = () => {
     [16, 17, 18, 19, 20],
   ];
 
-  const direaction = [
+  const direction = [
     [-1, 0],
     [0, 1],
     [1, 0],
@@ -27,8 +28,8 @@ const TwoDArray = () => {
       return;
     values.push(matrix[row][col]);
     seen[row][col] = true;
-    for (let i = 0; i < direaction.length; i++) {
-      const currentDir = direaction[i];
+    for (let i = 0; i < direction.length; i++) {
+      const currentDir = direction[i];
       dfs(matrix, row + currentDir[0], col + currentDir[1], seen, values);
     }
   };
@@ -65,8 +66,8 @@ const TwoDArray = () => {
         continue;
       seen[row][col] = true;
       values.push(matrix[row][col]);
-      for (let i = 0; i < direaction.length; i++) {
-        const currentDir = direaction[i];
+      for (let i = 0; i < direction.length; i++) {
+        const currentDir = direction[i];
         q.push([row + currentDir[0], col + currentDir[1]]);
       }
     }
@@ -185,6 +186,116 @@ const TwoDArray = () => {
     return time - 1;
   };
 
+  /* Build a maze and find the path */
+  class Cell {
+    constructor() {
+      this.wall = false;
+      this.gate = false;
+      this.start = false;
+      this.value = null;
+      this.path = false;
+    }
+  }
+
+  const maze = new Array(10).fill(0).map((item) => {
+    const innerArray = [];
+    for (let i = 0; i < 10; i++) {
+      const newCell = new Cell();
+      innerArray.push(newCell);
+    }
+    return innerArray;
+  });
+
+  maze[1][2].start = true;
+  maze[8][7].gate = true;
+
+  const findStart = (grid) => {
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[0].length; j++) {
+        if (grid[i][j].start) {
+          return [i, j];
+        }
+      }
+    }
+  };
+
+  const mazePathHighlightDFS = (grid, seen, row, col, startPoint) => {
+    if ([row, col] === startPoint) {
+      return;
+    }
+    for (let i = 0; i < direction.length; i++) {
+      const currentDir = direction[i];
+      const newRow = row + currentDir[0];
+      const newCol = col + currentDir[1];
+      if (
+        newRow < 0 ||
+        newRow >= grid.length ||
+        newCol < 0 ||
+        newCol >= grid[0].length ||
+        seen[[newRow, newCol]]
+      ) {
+        continue;
+      }
+      if (
+        [newRow, newCol] !== startPoint &&
+        grid[newRow][newCol].value === grid[row][col].value - 1
+      ) {
+        grid[newRow][newCol].path = true;
+        seen[[newRow, newCol]] = true;
+        mazePathHighlightDFS(grid, seen, newRow, newCol, startPoint);
+        break;
+      }
+    }
+  };
+
+  const mazePathHighlight = (grid, gateLocation, startPoint) => {
+    const seen = {};
+    const currentRow = gateLocation[0];
+    const currentCol = gateLocation[1];
+    seen[[currentRow, currentCol]] = true;
+    mazePathHighlightDFS(grid, seen, currentRow, currentCol, startPoint);
+  };
+
+  const mazeFindPathBFS = (grid) => {
+    const startPoint = findStart(grid);
+    const q = [startPoint];
+    const seen = {};
+    seen[startPoint] = true;
+    let level = 0;
+    let count = 1;
+
+    while (q.length) {
+      const current = q.shift();
+      const currentRow = current[0];
+      const currentCol = current[1];
+      grid[currentRow][currentCol].value = level;
+      if (grid[currentRow][currentCol].gate) {
+        mazePathHighlight(grid, current, startPoint);
+        return current;
+      }
+      for (let i = 0; i < direction.length; i++) {
+        const row = current[0] + direction[i][0];
+        const col = current[1] + direction[i][1];
+        if (
+          row < 0 ||
+          row >= grid.length ||
+          col < 0 ||
+          col >= grid[0].length ||
+          seen[[row, col]]
+        ) {
+          continue;
+        }
+        q.push([row, col]);
+        seen[[row, col]] = true;
+      }
+      count--;
+      if (count === 0) {
+        level++;
+        count = q.length;
+      }
+    }
+  };
+
   return (
     <div>
       <h3>2D Array</h3>
@@ -193,6 +304,10 @@ const TwoDArray = () => {
       <p>Output: {JSON.stringify(traversalDFS(TwoD))}</p>
       <h3>BFS for 2D Array</h3>
       <p>Output: {JSON.stringify(traversalBFS(TwoD))}</p>
+      {maze.map((item) => (
+        <TwoDArrayRow item={item} />
+      ))}
+      <p>The Gate is: {JSON.stringify(mazeFindPathBFS(maze))}</p>
     </div>
   );
 };
