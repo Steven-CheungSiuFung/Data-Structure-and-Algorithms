@@ -10,6 +10,17 @@ export const Cell = styled.div`
   cursor: pointer;
 `;
 
+export const Seen = styled.div`
+  width: 20px;
+  height: 20px;
+  border: 1px solid black;
+  display: flex;
+  background-color: lightblue;
+  justify-content: center;
+  items-align: center;
+  cursor: pointer;
+`;
+
 export const Wall = styled.div`
   width: 20px;
   height: 20px;

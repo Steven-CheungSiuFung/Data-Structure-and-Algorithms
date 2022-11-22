@@ -1,5 +1,7 @@
-import React from "react";
-import TwoDArrayRow from "../../TwoDArrayRow/TwoDArrayRow.component";
+import React, { useState } from "react";
+import TwoDArrayCell from "../../TwoDArrayCell/TwoDArrayCell.component";
+
+import { Row } from "./2d-array.styles";
 
 const TwoDArray = () => {
   const TwoD = [
@@ -208,6 +210,14 @@ const TwoDArray = () => {
 
   maze[1][2].start = true;
   maze[8][7].gate = true;
+  maze[1][3].wall = true;
+  maze[2][3].wall = true;
+  maze[3][3].wall = true;
+  maze[4][3].wall = true;
+  maze[6][2].wall = true;
+  maze[6][3].wall = true;
+  maze[6][4].wall = true;
+  maze[6][5].wall = true;
 
   const findStart = (grid) => {
     for (let i = 0; i < grid.length; i++) {
@@ -256,7 +266,11 @@ const TwoDArray = () => {
     mazePathHighlightDFS(grid, seen, currentRow, currentCol, startPoint);
   };
 
-  const mazeFindPathBFS = (grid) => {
+  const sleep = (time) => {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  };
+
+  const mazeFindPathBFS = async (grid) => {
     const startPoint = findStart(grid);
     const q = [startPoint];
     const seen = {};
@@ -265,10 +279,12 @@ const TwoDArray = () => {
     let count = 1;
 
     while (q.length) {
+      await sleep(50);
       const current = q.shift();
       const currentRow = current[0];
       const currentCol = current[1];
       grid[currentRow][currentCol].value = level;
+      setMazeState([...grid]);
       if (grid[currentRow][currentCol].gate) {
         mazePathHighlight(grid, current, startPoint);
         return current;
@@ -281,6 +297,7 @@ const TwoDArray = () => {
           row >= grid.length ||
           col < 0 ||
           col >= grid[0].length ||
+          grid[row][col].wall ||
           seen[[row, col]]
         ) {
           continue;
@@ -296,6 +313,13 @@ const TwoDArray = () => {
     }
   };
 
+  const [mazeState, setMazeState] = useState(maze);
+
+  const findPath = async () => {
+    const result = await mazeFindPathBFS(mazeState);
+    console.log(result);
+  };
+
   return (
     <div>
       <h3>2D Array</h3>
@@ -304,10 +328,16 @@ const TwoDArray = () => {
       <p>Output: {JSON.stringify(traversalDFS(TwoD))}</p>
       <h3>BFS for 2D Array</h3>
       <p>Output: {JSON.stringify(traversalBFS(TwoD))}</p>
-      {maze.map((item) => (
-        <TwoDArrayRow item={item} />
-      ))}
-      <p>The Gate is: {JSON.stringify(mazeFindPathBFS(maze))}</p>
+      {mazeState.map((row, index) => {
+        return (
+          <Row key={index}>
+            {row.map((cell, index) => (
+              <TwoDArrayCell key={index} cell={cell} />
+            ))}
+          </Row>
+        );
+      })}
+      <div onClick={findPath}>Find the path</div>
     </div>
   );
 };
