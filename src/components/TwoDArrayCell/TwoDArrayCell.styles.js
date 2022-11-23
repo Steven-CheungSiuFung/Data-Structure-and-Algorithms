@@ -10,57 +10,22 @@ export const Cell = styled.div`
   cursor: pointer;
 `;
 
-export const Seen = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 1px solid black;
-  display: flex;
+export const Seen = styled(Cell)`
   background-color: lightblue;
-  justify-content: center;
-  items-align: center;
-  cursor: pointer;
 `;
 
-export const Wall = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 1px solid black;
-  display: flex;
+export const Wall = styled(Cell)`
   background-color: gray;
-  justify-content: center;
-  items-align: center;
-  cursor: pointer;
 `;
 
-export const Gate = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 1px solid black;
-  display: flex;
+export const Gate = styled(Cell)`
   background-color: green;
-  justify-content: center;
-  items-align: center;
-  cursor: pointer;
 `;
 
-export const Start = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 1px solid black;
-  display: flex;
+export const Start = styled(Cell)`
   background-color: orange;
-  justify-content: center;
-  items-align: center;
-  cursor: pointer;
 `;
 
-export const Path = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 1px solid black;
-  display: flex;
+export const Path = styled(Cell)`
   background-color: yellow;
-  justify-content: center;
-  items-align: center;
-  cursor: pointer;
 `;

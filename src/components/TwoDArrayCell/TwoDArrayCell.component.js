@@ -17,10 +17,13 @@ const getCell = (cellState) => {
   }
 };
 
-const TwoDArrayCell = ({ cell }) => {
+const TwoDArrayCell = ({ cell, onCellClickHandler }) => {
+  const { row, col } = cell;
   const [cellState, setCellState] = useState(cell);
 
-  const onClickHandler = () => {};
+  const onClickHandler = () => {
+    onCellClickHandler([row, col]);
+  };
 
   return <div onClick={onClickHandler}>{getCell(cellState)}</div>;
 };

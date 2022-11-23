@@ -6,12 +6,13 @@ export const Layout = styled.div`
 `;
 
 export const NavigationContainer = styled.div`
-  height: 100%;
-  width: 200px;
+  height: 100vh;
+  width: 250px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 1rem;
+  padding: 2rem 1rem 2rem 3rem;
+  border-right: 1px solid black;
 `;
 
 export const NavLink = styled(Link)`
