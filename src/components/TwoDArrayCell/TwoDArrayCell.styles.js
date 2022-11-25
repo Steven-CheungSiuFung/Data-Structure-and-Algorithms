@@ -6,8 +6,9 @@ export const Cell = styled.div`
   border: 1px solid black;
   display: flex;
   justify-content: center;
-  items-align: center;
+  align-items: center;
   cursor: pointer;
+  font-size: 0.8rem;
 `;
 
 export const Seen = styled(Cell)`

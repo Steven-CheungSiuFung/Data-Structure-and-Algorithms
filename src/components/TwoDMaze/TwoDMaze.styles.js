@@ -8,7 +8,7 @@ export const MazeComponentWrapper = styled.div`
   padding: 1rem 0;
 `;
 
-export const SelectMazeSize = styled.div`
+export const SelectSection = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -24,12 +24,6 @@ export const Selector = styled.select`
   border-radius: 5px;
   padding: 2px 5px 2px 3px;
   cursor: pointer;
-`;
-
-export const SpeedContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 `;
 
 export const SpeedSelector = styled(Selector)``;

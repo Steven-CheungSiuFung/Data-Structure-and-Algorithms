@@ -11,9 +11,8 @@ import {
   Row,
   SelectGroup,
   Selector,
-  SpeedContainer,
   SpeedSelector,
-  SelectMazeSize,
+  SelectSection,
   SetMazeSizeButton,
   SelectTypesButton,
   SelectTypesButtonContainer,
@@ -42,10 +41,16 @@ const initialGate = [8, 7];
 
 // search speed
 const speeds = {
-  slow: 100,
-  normal: 50,
-  fast: 30,
-  biuu: 1,
+  Slow: 100,
+  Normal: 50,
+  Fast: 30,
+  Biuu: 1,
+};
+
+// search defaultAlgorithms
+const defaultAlgorithms = {
+  "Breadth First Search": false,
+  "Depth First Search": false,
 };
 
 const TwoDMaze = () => {
@@ -55,7 +60,12 @@ const TwoDMaze = () => {
   const [startPoint, setStartPoint] = useState(initialStartPoint);
   const [gatePoint, setGatePoint] = useState(1);
   const [matrixSize, setMatrixSize] = useState({ rows: 10, columns: 10 });
-  const [searchSpeed, setSearchSpeed] = useState(speeds.normal);
+  const [searchSpeed, setSearchSpeed] = useState(speeds.Normal);
+  const [searchAlgo, setSearchAlgo] = useState({
+    ...defaultAlgorithms,
+    "Breadth First Search": true,
+  });
+  const [searchTime, setSearchTime] = useState();
 
   /* Build a maze and find the path */
   class Cell {
@@ -108,6 +118,17 @@ const TwoDMaze = () => {
     setMazeState(maze);
   }, []);
 
+  // function for cleaning the path
+  const cleanPath = () => {
+    for (let i = 0; i < mazeState.length; i++) {
+      for (let j = 0; j < mazeState[0].length; j++) {
+        mazeState[i][j].value = null;
+        mazeState[i][j].path = false;
+        setMazeState([...mazeState]);
+      }
+    }
+  };
+
   // helper function for finding startPoint by sequential traverse
   const findStart = (grid) => {
     for (let i = 0; i < grid.length; i++) {
@@ -120,7 +141,7 @@ const TwoDMaze = () => {
   };
 
   // the DFS recursion function for finding the shortest path after touching the gate
-  const mazePathHighlightDFS = (grid, seen, row, col, startPoint) => {
+  const mazePathHighlightDFS = (grid, seen, row, col) => {
     if ([row, col] === startPoint) {
       return;
     }
@@ -139,23 +160,24 @@ const TwoDMaze = () => {
       }
       if (
         [newRow, newCol] !== startPoint &&
-        grid[newRow][newCol].value === grid[row][col].value - 1
+        grid[newRow][newCol].value &&
+        grid[newRow][newCol].value < grid[row][col].value
       ) {
         grid[newRow][newCol].path = true;
         seen[[newRow, newCol]] = true;
-        mazePathHighlightDFS(grid, seen, newRow, newCol, startPoint);
+        mazePathHighlightDFS(grid, seen, newRow, newCol);
         break;
       }
     }
   };
 
   // the main function for finding the shortest path after touching the gate
-  const mazePathHighlight = (grid, gateLocation, startPoint) => {
+  const mazePathHighlight = (grid, gateLocation) => {
     const seen = {};
     const currentRow = gateLocation[0];
     const currentCol = gateLocation[1];
     seen[[currentRow, currentCol]] = true;
-    mazePathHighlightDFS(grid, seen, currentRow, currentCol, startPoint);
+    mazePathHighlightDFS(grid, seen, currentRow, currentCol);
   };
 
   const sleep = (time) => {
@@ -163,23 +185,26 @@ const TwoDMaze = () => {
   };
 
   // the main function for searching the gate via BFS
-  const mazeFindPathBFS = async (grid, speed) => {
-    const startPoint = findStart(grid);
+  const mazeFindPathBFS = async (grid) => {
+    const startTime = new Date().getTime();
     const q = [startPoint];
     const seen = {};
     seen[startPoint] = true;
-    let level = 0;
+    let level = 1;
     let count = 1;
 
     while (q.length) {
-      await sleep(speed);
+      await sleep(searchSpeed);
       const current = q.shift();
       const currentRow = current[0];
       const currentCol = current[1];
       grid[currentRow][currentCol].value = level;
       setMazeState([...grid]);
       if (grid[currentRow][currentCol].gate) {
-        mazePathHighlight(grid, current, startPoint);
+        mazePathHighlight(grid, current);
+        const endTime = new Date().getTime();
+        const deltaTime = (endTime - startTime) / 1000;
+        setSearchTime(deltaTime);
         return current;
       }
       for (let i = 0; i < direction.length; i++) {
@@ -206,9 +231,64 @@ const TwoDMaze = () => {
     }
   };
 
+  // the DFS recursion function ofsearching the gate via DFS
+  const mazeDFS = async (grid, row, col, count, seen) => {
+    await sleep(searchSpeed);
+    grid[row][col].value = count;
+    setMazeState([...mazeState]);
+    if (grid[row][col].gate) {
+      mazePathHighlight(grid, [row, col], startPoint);
+      return [row, col];
+    }
+    for (let i = 0; i < direction.length; i++) {
+      const currentDir = direction[i];
+      const currentRow = row + currentDir[0];
+      const currentCol = col + currentDir[1];
+      if (
+        currentRow < 0 ||
+        currentRow >= grid.length ||
+        currentCol < 0 ||
+        currentCol >= grid[0].length ||
+        seen[[currentRow, currentCol]] ||
+        grid[currentRow][currentCol].wall ||
+        grid[currentRow][currentCol].start
+      ) {
+        continue;
+      }
+      seen[[currentRow, currentCol]] = true;
+      const result = await mazeDFS(
+        grid,
+        currentRow,
+        currentCol,
+        count + 1,
+        seen
+      );
+      if (result) return result;
+    }
+    return null;
+  };
+
+  // the main function for searching the gate via DFS
+  const mazeFindPathDFS = async (grid) => {
+    const startTime = new Date().getTime();
+    const seen = {};
+    const count = 1;
+    const startPoint = findStart(grid);
+    const row = startPoint[0];
+    const col = startPoint[1];
+    const gateLocation = await mazeDFS(grid, row, col, count, seen);
+    const endTime = new Date().getTime();
+    const deltaTime = (endTime - startTime) / 1000;
+    setSearchTime(deltaTime);
+    return gateLocation;
+  };
+
   // start to find the path
   const onClickFindPath = async () => {
-    const result = await mazeFindPathBFS(mazeState, searchSpeed);
+    cleanPath();
+    const result = searchAlgo["Breadth First Search"]
+      ? await mazeFindPathBFS(mazeState, searchSpeed)
+      : await mazeFindPathDFS(mazeState);
     console.log(result);
   };
 
@@ -220,13 +300,7 @@ const TwoDMaze = () => {
     setMatrixSize({ ...matrixSize, [name]: value });
   };
 
-  // change speed
-  const onChangeSelectSpeed = (e) => {
-    const selectedSpeed = e.target.value;
-    console.log(selectedSpeed);
-    setSearchSpeed(speeds[selectedSpeed]);
-  };
-
+  // set maze size
   const onClickMazeSize = () => {
     const rows = matrixSize.rows;
     const cols = matrixSize.columns;
@@ -236,6 +310,22 @@ const TwoDMaze = () => {
     setMazeState(newMaze);
     setStartPoint(initialStartPoint);
     setGatePoint(1);
+  };
+
+  // change searching defaultAlgorithms
+  const onChangeSelectAlgo = (e) => {
+    const selectedAlgo = e.target.value;
+    console.log(selectedAlgo);
+    const newAlgo = { ...defaultAlgorithms, [selectedAlgo]: true };
+    console.log(newAlgo);
+    setSearchAlgo(newAlgo);
+  };
+
+  // change speed
+  const onChangeSelectSpeed = (e) => {
+    const selectedSpeed = e.target.value;
+    console.log(selectedSpeed);
+    setSearchSpeed(speeds[selectedSpeed]);
   };
 
   // change the current selected type
@@ -282,13 +372,7 @@ const TwoDMaze = () => {
 
   // Reset the path, value
   const onClickClean = () => {
-    for (let i = 0; i < mazeState.length; i++) {
-      for (let j = 0; j < mazeState[0].length; j++) {
-        mazeState[i][j].value = null;
-        mazeState[i][j].path = false;
-        setMazeState([...mazeState]);
-      }
-    }
+    cleanPath();
   };
 
   // Reset all
@@ -302,7 +386,7 @@ const TwoDMaze = () => {
   return (
     <MazeComponentWrapper>
       <h1>Maze And Path Finding</h1>
-      <SelectMazeSize>
+      <SelectSection>
         <SelectGroup>
           <label>Rows: </label>
           <Selector id="rows" name="rows" onChange={onChangeSelectMazeSize}>
@@ -326,21 +410,35 @@ const TwoDMaze = () => {
         <SetMazeSizeButton onClick={onClickMazeSize}>
           Set Maze Size
         </SetMazeSizeButton>
-      </SelectMazeSize>
-      <SpeedContainer>
-        <label>Searching Speed: </label>
-        <SpeedSelector
-          id="speed"
-          name="speed"
-          defaultValue="normal"
-          onChange={onChangeSelectSpeed}
-        >
-          <option value="slow">slow</option>
-          <option value="normal">normal</option>
-          <option value="fast">fast</option>
-          <option value="biuu">biuu</option>
-        </SpeedSelector>
-      </SpeedContainer>
+      </SelectSection>
+      <SelectSection>
+        <SelectGroup>
+          <label>Searching Algorithm: </label>
+          <SpeedSelector
+            id="algo"
+            name="algo"
+            defaultValue="Breadth First Search"
+            onChange={onChangeSelectAlgo}
+          >
+            <option value="Breadth First Search">Breadth First Search</option>
+            <option value="Depth First Search">Depth First Search</option>
+          </SpeedSelector>
+        </SelectGroup>
+        <SelectGroup>
+          <label>Searching Speed: </label>
+          <SpeedSelector
+            id="speed"
+            name="speed"
+            defaultValue="Normal"
+            onChange={onChangeSelectSpeed}
+          >
+            <option value="Slow">Slow</option>
+            <option value="Normal">Normal</option>
+            <option value="Fast">Fast</option>
+            <option value="Biuu">Biuu</option>
+          </SpeedSelector>
+        </SelectGroup>
+      </SelectSection>
       <SelectTypesButtonContainer>
         <p>Select a type and click on a cell to set or cancel it: </p>
         <SelectTypesButton
@@ -384,6 +482,7 @@ const TwoDMaze = () => {
           );
         })}
       </MazeContainer>
+      <p>{searchTime && `Searching Time: ${searchTime}s`}</p>
       <ControlGroup>
         <ControlButton onClick={onClickFindPath}>
           <GoPlay />
@@ -395,7 +494,7 @@ const TwoDMaze = () => {
         </ControlButton>
         <ControlButton onClick={onClickReset}>
           <BiReset />
-          Reset all
+          Reset maze
         </ControlButton>
       </ControlGroup>
     </MazeComponentWrapper>
