@@ -25,7 +25,7 @@ const TwoDArrayCell = ({ cell, onCellClickHandler }) => {
     onCellClickHandler([row, col]);
   };
 
-  return <div onClick={onClickHandler}>{getCell(cellState)}</div>;
+  return <div onMouseDown={onClickHandler}>{getCell(cellState)}</div>;
 };
 
 export default TwoDArrayCell;
