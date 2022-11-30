@@ -18,8 +18,8 @@ const Navigation = () => {
         <NavLink to="/queue">Queue</NavLink>
   <NavLink to="/trees">Trees</NavLink>*/}
         <NavLink to="/2d-array">Maze and path finding (2D array)</NavLink>
-        {/*<NavLink to="/graph">Graph</NavLink>
         <NavLink to="/sorting">Sorting</NavLink>
+        {/*<NavLink to="/graph">Graph</NavLink>
         <NavLink to="/recursion">Recursion</NavLink>
   <NavLink to="/dynamic-programming">Dynamic Programming</NavLink>*/}
       </NavigationContainer>

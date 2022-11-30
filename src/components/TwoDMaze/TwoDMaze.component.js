@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { sleep } from "../../helper/utils";
+
 import { GoPlay } from "react-icons/go";
 import { BiReset } from "react-icons/bi";
 import { AiOutlineClear } from "react-icons/ai";
@@ -9,16 +11,17 @@ import {
   MazeComponentWrapper,
   MazeContainer,
   Row,
-  SelectGroup,
-  Selector,
-  SpeedSelector,
-  SelectSection,
   SetMazeSizeButton,
   SelectTypesButton,
   SelectTypesButtonContainer,
   ControlGroup,
   ControlButton,
 } from "./TwoDMaze.styles";
+import {
+  SelectSection,
+  SelectGroup,
+  Selector,
+} from "../Selector/Selector.styles";
 
 // create the search direction
 const direction = [
@@ -180,10 +183,6 @@ const TwoDMaze = () => {
     mazePathHighlightDFS(grid, seen, currentRow, currentCol);
   };
 
-  const sleep = (time) => {
-    return new Promise((resolve) => setTimeout(resolve, time));
-  };
-
   // the main function for searching the gate via BFS
   const mazeFindPathBFS = async (grid) => {
     const startTime = new Date().getTime();
@@ -312,35 +311,29 @@ const TwoDMaze = () => {
     setGatePoint(1);
   };
 
-  // change searching defaultAlgorithms
+  // change searching Algorithms
   const onChangeSelectAlgo = (e) => {
     const selectedAlgo = e.target.value;
-    console.log(selectedAlgo);
     const newAlgo = { ...defaultAlgorithms, [selectedAlgo]: true };
-    console.log(newAlgo);
     setSearchAlgo(newAlgo);
   };
 
   // change speed
   const onChangeSelectSpeed = (e) => {
     const selectedSpeed = e.target.value;
-    console.log(selectedSpeed);
     setSearchSpeed(speeds[selectedSpeed]);
   };
 
   // change the current selected type
   const onCellTypesClickHandler = (e) => {
     const type = e.target.id;
-    console.log(type);
     const newSelectedTypes = { ...defaultSelectedTypes };
     newSelectedTypes[type] = true;
-    console.log(newSelectedTypes);
     setSelectedTypes(newSelectedTypes);
   };
 
   // a function for changing the cell state by click on a cell
   const onCellClickHandler = (coordintes) => {
-    console.log(coordintes);
     const row = coordintes[0];
     const col = coordintes[1];
     if (selectedTypes.start) {
@@ -367,7 +360,6 @@ const TwoDMaze = () => {
       }
     }
     setMazeState([...mazeState]);
-    console.log(mazeState[row][col]);
   };
 
   // Reset the path, value
@@ -414,7 +406,7 @@ const TwoDMaze = () => {
       <SelectSection>
         <SelectGroup>
           <label>Searching Algorithm: </label>
-          <SpeedSelector
+          <Selector
             id="algo"
             name="algo"
             defaultValue="Breadth First Search"
@@ -422,11 +414,11 @@ const TwoDMaze = () => {
           >
             <option value="Breadth First Search">Breadth First Search</option>
             <option value="Depth First Search">Depth First Search</option>
-          </SpeedSelector>
+          </Selector>
         </SelectGroup>
         <SelectGroup>
           <label>Searching Speed: </label>
-          <SpeedSelector
+          <Selector
             id="speed"
             name="speed"
             defaultValue="Normal"
@@ -436,7 +428,7 @@ const TwoDMaze = () => {
             <option value="Normal">Normal</option>
             <option value="Fast">Fast</option>
             <option value="Biuu">Biuu</option>
-          </SpeedSelector>
+          </Selector>
         </SelectGroup>
       </SelectSection>
       <SelectTypesButtonContainer>

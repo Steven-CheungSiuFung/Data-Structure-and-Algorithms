@@ -1,178 +1,223 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import ArrayCell from "../../ArrayCell/ArrayCell.component";
+import { v4 as uuidv4 } from "uuid";
+import { sleep } from "../../../helper/utils";
+import { GoPlay } from "react-icons/go";
+import { BiReset } from "react-icons/bi";
+import {
+  SortingContainer,
+  ArrayContainer,
+  ControlGroup,
+  ControlButton,
+} from "./Sorting.styles";
+import {
+  SelectSection,
+  SelectGroup,
+  Selector,
+} from "../../Selector/Selector.styles";
+
+const Speeds = {
+  Slow: 100,
+  Normal: 50,
+  Fast: 20,
+  Biuu: 1,
+};
+
+const defaultAlgorithms = {
+  "Bubble Sort": "Bubble Sort",
+  "Quick Sort": "Quick Sort",
+};
 
 const Sorting = () => {
-  const numbers = [2, 5, 3, 1, 9, 6, 8, 7, 4];
+  const [arrayState, setArrayState] = useState([]);
+  const [sortingTime, setSortingTime] = useState(null);
+  const [algo, setAlgo] = useState(defaultAlgorithms["Bubble Sort"]);
+  const [speed, setSpeed] = useState(Speeds.Fast);
+  const numbers = [
+    10, 7, 20, 5, 17, 11, 3, 16, 14, 18, 9, 6, 15, 12, 19, 8, 13, 1, 4, 2,
+  ];
 
-  // Bubble Sort
-  // [2, 5, 3, 1, 9, 6, 8, 7, 4]
-  const bubbleSort = (array) => {
+  // create item class
+  class ArrayItem {
+    constructor(val) {
+      this.value = val;
+      this.id = null;
+      this.primary = false;
+      this.secondary = false;
+      this.current = false;
+    }
+  }
+
+  const createNewArray = () => {
+    const numberArray = numbers.map((val) => {
+      const newItem = new ArrayItem(val);
+      const newId = uuidv4();
+      newItem.id = newId;
+      return newItem;
+    });
+    return numberArray;
+  };
+
+  useEffect(() => {
+    const newArray = createNewArray();
+    setArrayState(newArray);
+  }, []);
+
+  /* Bubble Sort */
+  const bubbleSort = async (array) => {
     for (let i = 0; i < array.length; i++) {
-      for (let j = 0; j < array.length; j++) {
-        if (array[j] > array[j + 1]) {
+      for (let j = 0; j < array.length - 1; j++) {
+        const current = array[j];
+        const next = array[j + 1];
+        current.primary = true;
+        next.secondary = true;
+        setArrayState([...array]);
+        await sleep(speed);
+        if (array[j].value > array[j + 1].value) {
           let holder = array[j];
           array[j] = array[j + 1];
           array[j + 1] = holder;
+          setArrayState([...array]);
+          await sleep(speed);
         }
+        current.primary = false;
+        next.secondary = false;
       }
     }
     return array;
     // O(n^2)
   };
 
-  // Selection Sort
-  const slectionSort = (array) => {
-    // start from index 0
-    for (let i = 0; i < array.length; i++) {
-      // locate the index of the smallest number in the rest of the array
-      let smallNumberIndex = i;
-      for (let j = i + 1; j < array.length; j++) {
-        if (array[j] < array[smallNumberIndex]) {
-          smallNumberIndex = j;
-        }
-      }
-      // switch the smallest number to the current index
-      if (smallNumberIndex > i) {
-        let temp = array[i];
-        array[i] = array[smallNumberIndex];
-        array[smallNumberIndex] = temp;
-      }
-    }
-    return array;
-  };
-
-  // Insertion Sort
-  // [2, 5, 3, 1, 9, 6, 8, 7, 4]
-  const insertionSort = (array) => {
-    for (let i = 0; i < array.length; i++) {
-      if (array[i] < array[0]) {
-        array.splice(0, 0, array[i]);
-        array.splice(i + 1, 1);
-      } else {
-        for (let j = 1; j < i; j++) {
-          if (array[i] < array[j] && array[i] >= array[j - 1]) {
-            array.splice(j, 0, array[i]);
-            array.splice(i + 1, 1);
-          }
-        }
-      }
-    }
-    return array;
-    // O(n^2);
-    // can be Ω(n) in almost sorted case;
-  };
-
-  // Merge Sort
-  // [11, 2, 5, 99, 3, 10, 1, 9, 12, 6, 8, 7, 4]
-  const mergeSort = (array) => {
-    // 1. split the array into left and right
-    const splitArray = (array) => {
-      if (array.length === 1) {
-        return array;
-      } else {
-        const leftArray = array.slice(0, Math.floor(array.length / 2));
-        const rightArray = array.slice(Math.floor(array.length / 2));
-        return merge(splitArray(leftArray), splitArray(rightArray));
-      }
-    };
-    // 2. compare and merge
-    // [5], [2] => [2, 5]
-    // [1], [7] => [1, 7]
-    // [2, 5], [1, 7] => [1, 2, 5, 7]
-    const merge = (array1, array2) => {
-      const newArray = [];
-      let i = 0;
-      let j = 0;
-      while (newArray.length !== array1.length + array2.length) {
-        if (j === array2.length) {
-          newArray.push(array1[i]);
-          i++;
-        } else if (i === array1.length) {
-          newArray.push(array2[j]);
-          j++;
-        } else if (array1[i] < array2[j]) {
-          newArray.push(array1[i]);
-          i++;
-        } else {
-          newArray.push(array2[j]);
-          j++;
-        }
-      }
-      return newArray;
-    };
-
-    return splitArray(array);
-    // O(NLogN)
-  };
-
   /* Quick Sort with Recursion */
+  const recursion = async (array, left, right) => {
+    if (right < left || right === left || left > right) return;
 
-  const recursion = (array, h, p) => {
-    if (p < h || p === h || h > p) return;
+    const rightNode = array[right];
+    rightNode.current = true;
+    setArrayState([...array]);
 
-    let i = h;
-    let j = h;
+    let i = left;
+    let j = left;
 
-    while (j !== p) {
-      if (array[j] < array[p]) {
+    while (j !== right) {
+      const iNode = array[i];
+      const jNode = array[j];
+      iNode.primary = true;
+      jNode.secondary = true;
+      setArrayState([...array]);
+      await sleep(speed);
+      if (array[j].value < array[right].value) {
         let temp = array[j];
         array[j] = array[i];
         array[i] = temp;
         i++;
       }
       j++;
+      iNode.primary = false;
+      jNode.secondary = false;
     }
 
-    let temp = array[p];
-    array[p] = array[i];
+    let temp = array[right];
+    array[right] = array[i];
     array[i] = temp;
+    setArrayState([...array]);
+    await sleep(speed);
+    rightNode.current = false;
+    setArrayState([...array]);
 
-    recursion(array, h, i - 1);
-    recursion(array, i + 1, p);
+    await recursion(array, left, i - 1);
+    await recursion(array, i + 1, right);
   };
 
-  const quickSort = (array) => {
-    recursion(array, 0, array.length - 1);
+  const quickSort = async (array) => {
+    await recursion(array, 0, array.length - 1);
     return array;
     // T: O(nlogn);
     // S: O(logn);
   };
 
-  /* Hoare's quick select */
-  // find the smallest kth value in an unsorted array;
-  const hoareQuickSort = (array, left, p, k) => {
-    let partitionPointer = left;
-    for (let j = left; j < p; j++) {
-      if (array[j] < array[p]) {
-        const temp = array[partitionPointer];
-        array[partitionPointer] = array[j];
-        array[j] = temp;
-        partitionPointer++;
-      }
-    }
-    let temp = array[p];
-    array[p] = array[partitionPointer];
-    array[partitionPointer] = temp;
-
-    if (partitionPointer === k) {
-      return partitionPointer;
-    }
-
-    const indexToFind =
-      partitionPointer > k
-        ? hoareQuickSort(array, left, partitionPointer - 1, k)
-        : hoareQuickSort(array, partitionPointer + 1, p, k);
-    return indexToFind;
+  // change sorting algorithms
+  const onChangeSelectAlgo = (e) => {
+    const selectedAlgo = e.target.value;
+    const newAlgo = defaultAlgorithms[selectedAlgo];
+    setAlgo(newAlgo);
   };
 
-  const hoareQuickSelect = (array, k) => {
-    const indexToFind = hoareQuickSort(array, 0, array.length - 1, k - 1);
-    return array[indexToFind];
+  // change speed
+  const onChangeSelectSpeed = (e) => {
+    const selectedSpeed = e.target.value;
+    setSpeed(Speeds[selectedSpeed]);
+  };
+
+  const sort = async () => {
+    switch (algo) {
+      case defaultAlgorithms["Bubble Sort"]:
+        return await bubbleSort(arrayState);
+      case defaultAlgorithms["Quick Sort"]:
+        return await quickSort(arrayState);
+      default:
+        return;
+    }
+  };
+
+  const onClickStart = async (e) => {
+    const startTime = new Date().getTime();
+    const result = await sort();
+    const endTime = new Date().getTime();
+    const totalTime = endTime - startTime;
+    setSortingTime(totalTime);
+    console.log(result);
+  };
+
+  const onClickReset = () => {
+    const newArray = createNewArray();
+    setArrayState(newArray);
   };
 
   return (
-    <div>
+    <SortingContainer>
       <h3>Sorting</h3>
-    </div>
+      <SelectSection>
+        <SelectGroup>
+          <label>Sorting Algorithm: </label>
+          <Selector
+            id="algo"
+            name="algo"
+            defaultValue="Bubble Sort"
+            onChange={onChangeSelectAlgo}
+          >
+            <option value="Bubble Sort">Bubble Sort</option>
+            <option value="Quick Sort">Quick Sort</option>
+          </Selector>
+        </SelectGroup>
+        <SelectGroup>
+          <label>Sorting Speed: </label>
+          <Selector
+            id="speed"
+            name="speed"
+            defaultValue="Fast"
+            onChange={onChangeSelectSpeed}
+          >
+            <option value="Slow">Slow</option>
+            <option value="Normal">Normal</option>
+            <option value="Fast">Fast</option>
+            <option value="Biuu">Biuu</option>
+          </Selector>
+        </SelectGroup>
+      </SelectSection>
+      <ArrayContainer>
+        {arrayState.map((item) => (
+          <ArrayCell key={item.id} item={item} />
+        ))}
+      </ArrayContainer>
+      <p>{sortingTime && `${sortingTime / 1000}s`}</p>
+      <ControlGroup>
+        <ControlButton onClick={onClickStart}>
+          {<GoPlay />}Start Sorting
+        </ControlButton>
+        <ControlButton onClick={onClickReset}>{<BiReset />}Reset</ControlButton>
+      </ControlGroup>
+    </SortingContainer>
   );
 };
 

@@ -1,4 +1,8 @@
 import styled from "styled-components";
+import {
+  FunctionalDiv,
+  ControlDiv,
+} from "../FunctionalDiv/FunctionalDiv.styles";
 
 export const MazeComponentWrapper = styled.div`
   display: flex;
@@ -6,33 +10,6 @@ export const MazeComponentWrapper = styled.div`
   align-items: center;
   gap: 1rem;
   padding: 1rem 0;
-`;
-
-export const SelectSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-export const SelectGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-export const Selector = styled.select`
-  border-radius: 5px;
-  padding: 2px 5px 2px 3px;
-  cursor: pointer;
-`;
-
-export const SpeedSelector = styled(Selector)``;
-
-export const FunctionalDiv = styled.div`
-  border: 1px solid black;
-  border-radius: 5px;
-  padding: 2px 8px;
-  cursor: pointer;
 `;
 
 export const SetMazeSizeButton = styled(FunctionalDiv)`
@@ -75,10 +52,4 @@ export const ControlGroup = styled.div`
   gap: 1rem;
 `;
 
-export const ControlButton = styled(FunctionalDiv)`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  padding: 3px 10px;
-  font-size: 1.2rem;
-`;
+export const ControlButton = styled(ControlDiv)``;
