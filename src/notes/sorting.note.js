@@ -69,6 +69,7 @@ const mergeSort = (array) => {
       return merge(splitArray(leftArray), splitArray(rightArray));
     }
   };
+
   // 2. compare and merge
   // [5], [2] => [2, 5]
   // [1], [7] => [1, 7]

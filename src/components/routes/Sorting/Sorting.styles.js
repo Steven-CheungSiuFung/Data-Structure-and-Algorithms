@@ -7,6 +7,7 @@ export const SortingContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  padding: 1rem 0;
 `;
 
 export const ArrayContainer = styled.div`

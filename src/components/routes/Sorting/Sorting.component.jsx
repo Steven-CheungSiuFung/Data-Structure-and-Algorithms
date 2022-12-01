@@ -26,6 +26,7 @@ const Speeds = {
 const defaultAlgorithms = {
   "Bubble Sort": "Bubble Sort",
   "Quick Sort": "Quick Sort",
+  "Merge Sort": "Merge Sort",
 };
 
 const Sorting = () => {
@@ -136,6 +137,74 @@ const Sorting = () => {
     // S: O(logn);
   };
 
+  /* Merge Sort */
+  const mergeSort = async (array) => {
+    // split function
+    const splitIndex = async (array, left, right) => {
+      if (left === right) {
+        return [left, right];
+      } else {
+        const middle = Math.floor((left + right) / 2);
+        const leftStart = left;
+        const leftEnd = middle;
+        const rightStart = middle + 1;
+        const rightEnd = right;
+        return await mergeIndex(
+          array,
+          await splitIndex(array, leftStart, leftEnd),
+          await splitIndex(array, rightStart, rightEnd)
+        );
+      }
+    };
+
+    // merge function
+    const mergeIndex = async (array, left, right) => {
+      const leftStart = left[0];
+      const leftEnd = left[1];
+      const rightStart = right[0];
+      const rightEnd = right[1];
+      let i = leftStart;
+      let j = rightStart;
+      const newArray = [];
+      while (i <= leftEnd || j <= rightEnd) {
+        const leftNode = array[i];
+        const rightNode = array[j];
+        if (i > leftEnd) {
+          rightNode.secondary = true;
+          newArray.push(array[j]);
+          j++;
+        } else if (j > rightEnd) {
+          leftNode.primary = true;
+          newArray.push(array[i]);
+          i++;
+        } else if (array[i].value < array[j].value) {
+          leftNode.primary = true;
+          newArray.push(array[i]);
+          i++;
+        } else if (array[j].value < array[i].value) {
+          rightNode.secondary = true;
+          newArray.push(array[j]);
+          j++;
+        }
+        setArrayState([...array]);
+        await sleep(speed);
+        if (leftNode) leftNode.primary = false;
+        if (rightNode) rightNode.secondary = false;
+      }
+      for (let k = 0; k < newArray.length; k++) {
+        const currentIndex = leftStart + k;
+        array[currentIndex] = newArray[k];
+      }
+      setArrayState([...array]);
+      await sleep(speed);
+      return [leftStart, rightEnd];
+    };
+
+    await splitIndex(array, 0, array.length - 1);
+    setArrayState([...array]);
+    // O(NLogN)
+  };
+
   // change sorting algorithms
   const onChangeSelectAlgo = (e) => {
     const selectedAlgo = e.target.value;
@@ -155,6 +224,8 @@ const Sorting = () => {
         return await bubbleSort(arrayState);
       case defaultAlgorithms["Quick Sort"]:
         return await quickSort(arrayState);
+      case defaultAlgorithms["Merge Sort"]:
+        return await mergeSort(arrayState);
       default:
         return;
     }
@@ -166,7 +237,6 @@ const Sorting = () => {
     const endTime = new Date().getTime();
     const totalTime = endTime - startTime;
     setSortingTime(totalTime);
-    console.log(result);
   };
 
   const onClickReset = () => {
@@ -176,7 +246,7 @@ const Sorting = () => {
 
   return (
     <SortingContainer>
-      <h3>Sorting</h3>
+      <h1>Sorting</h1>
       <SelectSection>
         <SelectGroup>
           <label>Sorting Algorithm: </label>
@@ -188,6 +258,7 @@ const Sorting = () => {
           >
             <option value="Bubble Sort">Bubble Sort</option>
             <option value="Quick Sort">Quick Sort</option>
+            <option value="Merge Sort">Merge Sort</option>
           </Selector>
         </SelectGroup>
         <SelectGroup>
@@ -210,7 +281,7 @@ const Sorting = () => {
           <ArrayCell key={item.id} item={item} />
         ))}
       </ArrayContainer>
-      <p>{sortingTime && `${sortingTime / 1000}s`}</p>
+      <p>{sortingTime && `Sorting Time: ${sortingTime / 1000}s`}</p>
       <ControlGroup>
         <ControlButton onClick={onClickStart}>
           {<GoPlay />}Start Sorting
